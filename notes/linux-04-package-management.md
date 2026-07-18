@@ -254,15 +254,91 @@ These tools are commonly needed for deployments, monitoring, and troubleshooting
 
 🎤 Interview Questions
 What is a Linux package?
+A Linux package is a compressed file that contains:
+
+Application or software
+Configuration files
+Dependencies (or dependency information)
+Metadata (name, version, description)
+
+Packages make software installation, updating, and removal easier.
+
+Examples:
+
+Debian/Ubuntu: .deb
+RHEL/CentOS: .rpm
+
+
+
 What is the difference between apt update and apt upgrade?
+apt update	                                                                     apt upgrade
+Downloads the latest package information from repositories.	                     Installs available updates for installed packages.
+Does not install any software.	                                                 Updates software to newer versions.
+Example:
+sudo apt update
+sudo apt upgrade
+
+
 What is the difference between apt remove and apt purge?
+apt remove	                              apt purge
+Removes the package.	                  Removes the package and its configuration files.
+Configuration files remain.           	  Configuration files are deleted.
+Examples:
+sudo apt remove nginx
+sudo apt purge nginx
+
+
 What is dpkg used for?
+dpkg is the low-level package management tool for Debian-based systems. It is used to install, remove, and query .deb packages directly.
+Examples:
+sudo dpkg -i package.deb
+dpkg -l
+
+
 What is the difference between apt and dpkg?
+apt	                                             dpkg
+High-level package manager.	                    Low-level package manager.
+Automatically resolves dependencies.        	Does not resolve dependencies automatically.
+Downloads packages from repositories.	        Installs local .deb files.
+Example:
+sudo apt install git
+sudo dpkg -i package.deb
+
+
 What is a repository?
+A repository is an online or local storage location that contains software packages and their metadata. Package managers use repositories to download and update software.
+Examples:
+Ubuntu Main Repository
+Universe Repository
+Third-party repositories (e.g., Docker)
+
+
 What command lists installed packages?
+Using dpkg:
+dpkg -l
+Using apt:
+apt list --installed
+
+
 What command searches for available packages?
+apt search package-name
+
+
 What is the package manager for RHEL 8 and later?
+The package manager is DNF (Dandified Yum).
+Common commands:
+sudo dnf install nginx
+sudo dnf update
+dnf replaced yum as the default package manager in RHEL 8, although yum is still available as a compatibility command on many systems.
+
+
 Why is apt install -f useful after a failed dpkg installation?
+When a dpkg -i installation fails because of missing dependencies, the package may be left only partially installed.
+Running:
+sudo apt install -f
+tells apt to fix broken dependencies by downloading and installing the required packages, then completing the installation
+
+
 📝 Today's Assignment
 
 Complete the lab and send me the output of:
@@ -286,3 +362,17 @@ apt update → Refreshes the package index.
 apt upgrade → Installs newer versions of already installed packages.
 
 Understanding these differences will help you troubleshoot real systems and answer interview questions confidently.
+
+Quick Interview Revision
+Linux package: Compressed software bundle (.deb or .rpm).
+apt update: Refreshes package lists.
+apt upgrade: Installs available updates.
+apt remove: Removes package, keeps configuration files.
+apt purge: Removes package and configuration files.
+dpkg: Low-level tool for managing .deb packages.
+apt: High-level package manager with dependency resolution.
+Repository: Source of software packages.
+List installed packages: dpkg -l or apt list --installed.
+Search packages: apt search <package-name>.
+RHEL 8+ package manager: dnf.
+apt install -f: Fixes broken or missing dependencies after a failed dpkg installation.
