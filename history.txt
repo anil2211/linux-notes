@@ -307,3 +307,25 @@
   307  git commit -m "notes added"
   308  git push -u origin main
   309  history
+  310  clear
+  311  apt search nginx
+  312  sudo apt autoremove
+  313  apt show git
+  314  apt list --installed
+  315  apt list --installed | grep git
+  316  dpkg -l
+  317  git --version
+  318  curl --version
+  319  tree --version
+  320  htop --version
+  321  which git
+  322  which curl
+  323  which tree
+  324  apt search nginx
+  325  apt show git
+  326  git status
+  327  git add 
+  328  git add .
+  329  git commit -m "file updated"
+  330  git push -u origin main
+  331  history

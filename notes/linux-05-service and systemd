@@ -1,0 +1,433 @@
+Almost every DevOps tool you use—Docker, Jenkins, Nginx, Apache, SSH, Kubernetes components—runs as a service managed by systemd.
+
+Step 5 – Services & systemd
+🎯 Learning Objectives
+
+By the end of this step, you'll be able to:
+
+Understand what a service is.
+Learn what systemd is.
+Start, stop, restart, and reload services.
+Enable and disable services at boot.
+Check service status.
+Read service logs.
+Create your own systemd service.
+Troubleshoot service failures.
+1. What is a Service?
+
+A service (also called a daemon) is a program that runs in the background and waits to perform work.
+
+Examples:
+
+SSH Server → Allows remote login.
+Nginx → Serves web pages.
+Docker → Runs containers.
+Jenkins → CI/CD automation.
+Cron → Executes scheduled jobs.
+
+Think of a service like an employee working continuously in the background instead of only when you open a program.
+
+2. What is systemd?
+
+systemd is the service manager used by most modern Linux distributions.
+
+Its responsibilities include:
+
+Starting services.
+Stopping services.
+Restarting services.
+Managing boot order.
+Tracking logs.
+Restarting failed services (if configured).
+
+Verify it's running:
+
+ps -p 1
+
+Expected output:
+
+PID TTY      TIME CMD
+1   ?        00:00:05 systemd
+
+Interview Tip: PID 1 is usually the systemd process.
+
+3. List Running Services
+systemctl list-units --type=service
+
+This displays active services.
+
+4. Check Service Status
+
+Example with SSH:
+
+systemctl status ssh
+
+Possible output:
+
+Active: active (running)
+
+If a service isn't running:
+
+Active: inactive (dead)
+5. Start a Service
+sudo systemctl start nginx
+
+Check its status:
+
+systemctl status nginx
+6. Stop a Service
+sudo systemctl stop nginx
+7. Restart a Service
+sudo systemctl restart nginx
+
+This is commonly used after changing configuration files.
+
+8. Reload a Service
+sudo systemctl reload nginx
+
+Difference:
+
+Restart → Stops and starts the service.
+Reload → Applies configuration changes without a full restart (if the service supports it).
+9. Enable a Service at Boot
+sudo systemctl enable nginx
+
+Now Nginx starts automatically when the server boots.
+
+10. Disable Automatic Startup
+sudo systemctl disable nginx
+11. Check if a Service is Enabled
+systemctl is-enabled nginx
+
+Output:
+
+enabled
+
+or
+
+disabled
+12. Check if a Service is Active
+systemctl is-active nginx
+
+Output:
+
+active
+
+or
+
+inactive
+13. View Service Logs
+
+systemd stores logs in the journal.
+
+Show logs:
+
+journalctl -u nginx
+
+Latest logs first:
+
+journalctl -u nginx -r
+
+Follow logs in real time:
+
+journalctl -u nginx -f
+
+Exit with:
+
+Ctrl + C
+14. View Boot Logs
+journalctl -b
+
+Previous boot:
+
+journalctl -b -1
+
+Very useful when a server fails after reboot.
+
+15. Create Your Own Service
+
+Create a script:
+
+mkdir -p ~/scripts
+nano ~/scripts/hello.sh
+
+Contents:
+
+#!/bin/bash
+
+while true
+do
+    echo "Hello DevOps $(date)" >> /tmp/hello.log
+    sleep 10
+done
+
+Make it executable:
+
+chmod +x ~/scripts/hello.sh
+
+Create a service file:
+
+sudo nano /etc/systemd/system/hello.service
+
+Paste:
+
+[Unit]
+Description=Hello DevOps Service
+After=network.target
+
+[Service]
+ExecStart=/home/<YOUR_USERNAME>/scripts/hello.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+Replace <YOUR_USERNAME> with your Linux username.
+
+Reload systemd:
+
+sudo systemctl daemon-reload
+
+Start the service:
+
+sudo systemctl start hello
+
+Enable it:
+
+sudo systemctl enable hello
+
+Check status:
+
+systemctl status hello
+
+Verify the log file is being updated:
+
+tail -f /tmp/hello.log
+16. Common systemctl Commands
+Command	Purpose
+systemctl status	Show service status
+systemctl start	Start a service
+systemctl stop	Stop a service
+systemctl restart	Restart a service
+systemctl reload	Reload configuration
+systemctl enable	Start at boot
+systemctl disable	Don't start at boot
+systemctl is-active	Check running state
+systemctl is-enabled	Check boot state
+systemctl daemon-reload	Reload service definitions
+🧪 Practical Lab (45–60 Minutes)
+Task 1
+
+Install Nginx:
+
+sudo apt update
+sudo apt install nginx -y
+Task 2
+
+Check its status:
+
+systemctl status nginx
+Task 3
+
+Stop it:
+
+sudo systemctl stop nginx
+
+Verify:
+
+systemctl is-active nginx
+Task 4
+
+Start it again:
+
+sudo systemctl start nginx
+Task 5
+
+Restart it:
+
+sudo systemctl restart nginx
+Task 6
+
+Enable it at boot:
+
+sudo systemctl enable nginx
+Task 7
+
+Read logs:
+
+journalctl -u nginx
+Task 8 (Mini Project)
+
+Create and run the custom hello.service from this lesson. It's excellent practice for understanding how systemd manages long-running processes.
+
+🚨 Biggest Mistakes Engineers Make
+❌ Mistake 1: Editing configuration without restarting or reloading
+
+If you modify a service's configuration, the running service usually won't use it until you reload or restart it.
+
+❌ Mistake 2: Forgetting daemon-reload
+
+After changing or creating a service file under /etc/systemd/system/, always run:
+
+sudo systemctl daemon-reload
+
+Otherwise, systemd won't recognize your changes.
+
+❌ Mistake 3: Enabling a service before verifying it works
+
+First:
+
+Start the service.
+Check its status.
+Review logs if needed.
+Then enable it to start automatically on boot.
+🌍 Free Learning Resources
+Linux Journey – Init Systems & Services.
+The Linux Foundation – Introduction to Linux (sections on systemd).
+DigitalOcean Tutorials on systemctl and journalctl.
+freeCodeCamp Linux Course (YouTube).
+💼 Real DevOps Scenario
+
+Suppose your website is returning errors after a configuration change.
+
+A common troubleshooting workflow is:
+
+systemctl status nginx
+
+If the service failed:
+
+journalctl -u nginx -n 50
+
+Fix the configuration, then:
+
+sudo systemctl restart nginx
+
+Finally, verify:
+
+systemctl is-active nginx
+
+This pattern applies not just to Nginx, but also to Docker, Jenkins, SSH, and many other services you'll manage as a DevOps engineer.
+
+🎤 Interview Questions
+What is a Linux service?
+A Linux service is a program or process that runs in the background (daemon) to provide system or application functionality. Services often start automatically during system boot.
+Examples:
+SSH (sshd)
+Nginx (nginx)
+Docker (docker)
+
+
+What is systemd?
+systemd is the default system and service manager on most modern Linux distributions. It is responsible for:
+Starting services during boot
+Managing services
+Handling dependencies
+Logging (through journald)
+Managing system states (targets)
+Common commands:
+sudo systemctl start nginx
+sudo systemctl stop nginx
+sudo systemctl restart nginx
+
+
+Why is PID 1 important?
+PID 1 is the first process started by the Linux kernel during boot.
+On most modern Linux systems, PID 1 is systemd.
+Its responsibilities include:
+Starting system services
+Managing child processes
+Adopting orphaned processes
+Coordinating system shutdown and reboot
+To check PID 1:
+ps -p 1
+Example output:
+PID TTY          TIME CMD
+1   ?        00:00:02 systemd
+
+What is the difference between restart and reload?
+restart                               	    reload
+Stops and starts the service.	            Reloads configuration without stopping the service.
+Existing connections may be interrupted.	Existing connections usually continue.
+Used after binary or major changes.	        Used after configuration changes.
+sudo systemctl restart nginx                  sudo systemctl reload nginx
+
+
+What does systemctl enable do?
+systemctl enable configures a service to start automatically at boot by creating the necessary symbolic links.
+Example:
+sudo systemctl enable nginx
+To enable and start immediately:
+sudo systemctl enable --now nginx
+
+How do you check whether a service is running?
+systemctl status nginx
+systemctl is-active nginx
+Possible results:
+active
+inactive
+failed
+
+
+What is journalctl used for?
+journalctl displays logs collected by the systemd journal.
+Useful commands:
+View all logs:journalctl
+View logs for a specific service:
+journalctl -u nginx
+Show the latest logs:
+journalctl -u nginx -n 20
+Follow logs in real time:
+journalctl -u nginx -f
+
+Why do you run systemctl daemon-reload?
+sudo systemctl daemon-reload
+after:
+Creating a new .service file
+Modifying an existing .service file
+It reloads the systemd configuration so it recognizes the changes
+
+How do you configure a service to start automatically after reboot?
+Enable the service:
+sudo systemctl enable nginx
+Or enable and start it immediately:
+sudo systemctl enable --now nginx
+Verify:
+systemctl is-enabled nginx
+Expected output:
+enabled
+
+How would you troubleshoot a service that won't start?
+A common troubleshooting workflow is:
+Check the service status:
+systemctl status <service>
+View recent logs:
+journalctl -u <service> -n 50
+Verify the service file:
+Confirm the ExecStart path is correct.
+Ensure the executable exists and has execute permission.
+Test the command manually:
+/path/to/executable
+If the service file was changed:
+sudo systemctl daemon-reload
+Restart the service:
+sudo systemctl restart <service>
+Check for configuration errors (if supported by the service), such as:
+nginx -t
+
+
+📝 Today's Assignment
+Complete the Nginx lab.
+Create the custom hello.service.
+Send me the output of:
+systemctl status nginx
+systemctl is-enabled nginx
+journalctl -u nginx -n 10
+systemctl status hello
+🎯 Mentor's Advice
+
+Understanding systemd separates beginners from professionals. Most production incidents involve checking service status and logs before taking action. Build the habit of asking:
+
+Is the service running? (systemctl status)
+What do the logs say? (journalctl)
+Did I change the configuration?
+**Do I need a reload or a restart?`
