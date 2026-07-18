@@ -62,7 +62,7 @@ Typical output:
 ├── journal
 3. Important Log Files
 Log File	Purpose
-/var/log/syslog	General system events (Ubuntu)
+/var/log/syslog	    General system events (Ubuntu)
 /var/log/auth.log	Authentication & SSH logins
 /var/log/kern.log	Kernel messages
 /var/log/dpkg.log	Package installation history
@@ -364,15 +364,117 @@ Watch the logging and troubleshooting sections.
 
 Interview Questions
 What are Linux logs?
+Linux logs are files or journal entries that record system events, application activity, errors, warnings, security events, and user actions. They help administrators monitor systems and troubleshoot issues.
+Examples:
+System boot messages
+Service start/stop events
+Login attempts
+Application errors
+
 Where are Linux logs stored?
+Traditional log files are usually stored in:
+/var/log/
+Common log files include:
+/var/log/syslog – General system logs (Ubuntu/Debian)
+/var/log/auth.log – Authentication and SSH logs
+/var/log/kern.log – Kernel logs
+/var/log/dpkg.log – Package installation logs
+/var/log/nginx/ – Nginx logs
+/var/log/apache2/ – Apache logs
+Modern Linux systems using systemd also store logs in the systemd journal, which you access with journalctl.
+
+
 What is journalctl?
+journalctl is the command used to view logs collected by the systemd journal (journald).
+Useful commands:
+View all logs:
+journalctl
+View logs for a service:
+journalctl -u nginx
+View today's logs:
+journalctl --since today
+Follow logs in real time:
+journalctl -f
+
+
 What is the difference between /var/log/syslog and journalctl?
+/var/log/syslog	                               journalctl
+Plain text log file.	                     Displays logs from the systemd journal.
+Used by traditional syslog services.	     Used on systemd-based systems.
+Viewed with cat, less, or tail.	             Viewed with journalctl.
+May not include all journal information.	 Can filter by service, boot, time, or priority.
+
+
 What does tail -f do?
+tail -f displays the last lines of a file and continues to show new lines as they are added, making it useful for monitoring logs in real time.
+Example:
+tail -f /var/log/syslog
+
+
 How do you view logs for a specific service?
+Using journalctl:
+journalctl -u nginx
+To follow logs live:
+journalctl -u nginx -f
+To view the last 20 lines:
+journalctl -u nginx -n 20
+
+
 Where are SSH login logs stored on Ubuntu?
+SSH login attempts are typically recorded in:
+/var/log/auth.log
+View them with:
+sudo less /var/log/auth.log
+Or search for SSH entries:
+grep ssh /var/log/auth.log
+
+
 What is logrotate?
+logrotate is a utility that automatically manages log files by:
+
+Rotating old logs
+Compressing archived logs
+Deleting very old logs
+Preventing log files from growing indefinitely
+Its main configuration file is:
+/etc/logrotate.conf
+Additional configurations are usually in:
+/etc/logrotate.d/
+
+
 How do you search for errors in a log file?
+Use grep:
+grep -i error /var/log/syslog
+Search for multiple keywords:
+grep -Ei "error|failed|fatal" /var/log/syslog
+For a specific service:
+journalctl -u nginx | grep -i error
+
+
 What would you check first if Nginx fails to start?
+A typical troubleshooting sequence is:
+Check the service status:
+systemctl status nginx
+Review the service logs:
+journalctl -u nginx -n 50
+Test the Nginx configuration:
+sudo nginx -t
+Check the Nginx error log:
+sudo tail -f /var/log/nginx/error.log
+Verify that required ports (such as 80 or 443) are not already in use and that the configuration files are valid.
+
+Quick Interview Revision
+Linux logs: Records of system and application events.
+Log location: /var/log/ and the systemd journal.
+journalctl: Views logs managed by systemd.
+/var/log/syslog: Traditional text log file; journalctl reads the systemd journal.
+tail -f: Monitors a file as new lines are added.
+Service logs: journalctl -u <service>.
+SSH logs (Ubuntu): /var/log/auth.log.
+logrotate: Rotates, compresses, and manages log files.
+Search logs: grep -i error <logfile>.
+Nginx troubleshooting: Check systemctl status, inspect journalctl logs, run nginx -t, and review the Nginx error log.
+
 Assignment
 
 Run the following commands and understand their output:
