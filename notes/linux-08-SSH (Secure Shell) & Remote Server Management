@@ -1,0 +1,410 @@
+Step 8 – SSH (Secure Shell) & Remote Server Management
+
+If Linux is your operating system, SSH is your doorway into every server.
+
+Almost all DevOps work happens remotely:
+
+Connecting to cloud servers.
+Managing EC2 instances.
+Deploying applications.
+Running Ansible.
+Configuring Docker hosts.
+Managing Kubernetes nodes.
+🎯 Learning Objectives
+
+By the end of this step, you'll be able to:
+
+Understand SSH.
+Connect to remote servers.
+Generate SSH keys.
+Configure passwordless login.
+Copy files using SCP.
+Sync files using rsync.
+Secure SSH access.
+Troubleshoot SSH failures.
+1. What is SSH?
+
+SSH (Secure Shell) allows you to securely access another machine over a network.
+
+Example:
+
+Your Laptop
+     │
+     │ SSH
+     ▼
+Linux Server
+
+Instead of physically sitting in front of the server, you control it remotely.
+
+2. Basic SSH Connection
+ssh username@server_ip
+
+Example:
+
+ssh ubuntu@192.168.1.100
+
+or:
+
+ssh ubuntu@10.0.0.15
+3. Connect Using a Different Port
+
+If SSH runs on port 2222:
+
+ssh -p 2222 ubuntu@192.168.1.100
+4. First Connection
+
+The first time you connect:
+
+The authenticity of host can't be established.
+Are you sure you want to continue connecting?
+
+Type:
+
+yes
+
+Linux stores the server fingerprint in:
+
+~/.ssh/known_hosts
+5. Generate SSH Keys
+
+This is the preferred authentication method in DevOps.
+
+Generate a key:
+
+ssh-keygen
+
+Press Enter to accept defaults.
+
+Files created:
+
+~/.ssh/id_rsa
+~/.ssh/id_rsa.pub
+
+or on newer systems:
+
+~/.ssh/id_ed25519
+~/.ssh/id_ed25519.pub
+6. Public vs Private Key
+Private Key
+id_ed25519
+
+Keep it secret.
+
+Never share it.
+
+Public Key
+id_ed25519.pub
+
+Safe to share with servers.
+
+Think of it like:
+
+Public Key  = Lock
+Private Key = Key
+7. Copy Public Key to a Server
+ssh-copy-id ubuntu@192.168.1.100
+
+After this:
+
+ssh ubuntu@192.168.1.100
+
+No password required.
+
+This is called passwordless authentication.
+
+8. Manually Add Keys
+
+View your public key:
+
+cat ~/.ssh/id_ed25519.pub
+
+Add it to:
+
+~/.ssh/authorized_keys
+
+on the remote server.
+
+9. SSH Configuration File
+
+Create:
+
+nano ~/.ssh/config
+
+Example:
+
+Host prod
+    HostName 192.168.1.100
+    User ubuntu
+    Port 22
+
+Now connect using:
+
+ssh prod
+
+This becomes extremely useful when managing many servers.
+
+10. Copy Files Using SCP
+
+Copy local file to server:
+
+scp file.txt ubuntu@192.168.1.100:/home/ubuntu/
+
+Copy from server:
+
+scp ubuntu@192.168.1.100:/home/ubuntu/file.txt .
+11. Copy Directories
+scp -r project ubuntu@192.168.1.100:/home/ubuntu/
+12. Sync Files Using rsync
+
+Install:
+
+sudo apt install rsync
+
+Sync directories:
+
+rsync -av project/ ubuntu@192.168.1.100:/home/ubuntu/project/
+
+Advantages:
+
+Faster than SCP for repeated transfers.
+Copies only changed files.
+Widely used in deployments.
+13. Verify SSH Service
+
+Check:
+
+systemctl status ssh
+
+or:
+
+systemctl status sshd
+
+Depending on the distribution.
+
+14. Check SSH Port
+ss -tulpn | grep :22
+
+Example:
+
+LISTEN 0 128 0.0.0.0:22
+
+SSH is listening.
+
+15. Important SSH Configuration
+
+Configuration file:
+
+/etc/ssh/sshd_config
+
+Common settings:
+
+Disable root login:
+
+PermitRootLogin no
+
+Disable password authentication:
+
+PasswordAuthentication no
+
+Change SSH port:
+
+Port 2222
+
+After changes:
+
+sudo systemctl restart ssh
+16. Check SSH Logs
+
+Ubuntu:
+
+journalctl -u ssh
+
+or:
+
+grep ssh /var/log/auth.log
+17. Test SSH Connectivity
+
+Check port availability:
+
+nc -zv 192.168.1.100 22
+Practical Lab (60 Minutes)
+Task 1
+
+Check SSH status:
+
+systemctl status ssh
+Task 2
+
+Verify SSH port:
+
+ss -tulpn | grep :22
+Task 3
+
+Generate an SSH key:
+
+ssh-keygen
+Task 4
+
+View the public key:
+
+cat ~/.ssh/id_ed25519.pub
+
+or:
+
+cat ~/.ssh/id_rsa.pub
+Task 5
+
+Create an SSH config:
+
+nano ~/.ssh/config
+
+Add:
+
+Host local
+    HostName localhost
+    User YOUR_USERNAME
+
+Test:
+
+ssh local
+Task 6
+
+Install rsync:
+
+sudo apt install rsync
+Task 7
+
+Create a test directory:
+
+mkdir ssh-lab
+touch ssh-lab/file1
+touch ssh-lab/file2
+
+Sync it:
+
+rsync -av ssh-lab/ backup/
+Real DevOps Scenario
+
+You need to deploy code to a server.
+
+Typical workflow:
+
+ssh devops@server
+git pull
+docker compose up -d
+systemctl restart nginx
+
+Almost every deployment pipeline eventually performs operations similar to this.
+
+Troubleshooting SSH
+Connection Refused
+
+Check:
+
+systemctl status ssh
+
+and:
+
+ss -tulpn | grep :22
+Timeout
+
+Check:
+
+Firewall
+Network connectivity
+Security groups (cloud)
+Routing
+Permission Denied
+
+Verify:
+
+~/.ssh/authorized_keys
+
+Check file permissions:
+
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys
+Biggest Mistakes Engineers Make
+❌ Sharing private keys
+
+Never share:
+
+id_rsa
+id_ed25519
+
+Only share the public key.
+
+❌ Enabling root SSH login
+
+Avoid:
+
+PermitRootLogin yes
+
+Use normal users with sudo.
+
+❌ Leaving password authentication enabled
+
+Key-based authentication is safer and preferred in production.
+
+Free Resources
+Linux Journey → Networking & SSH sections.
+The Linux Foundation → Introduction to Linux.
+OpenSSH official documentation.
+freeCodeCamp Linux course.
+Interview Questions
+What is SSH?
+What is the default SSH port?
+What is the difference between a public key and a private key?
+What does ssh-copy-id do?
+What is authorized_keys?
+What is the purpose of ~/.ssh/config?
+What is the difference between scp and rsync?
+How do you check whether SSH is running?
+What causes "Permission denied (publickey)" errors?
+Why is key-based authentication preferred over passwords?
+Assignment
+
+Run:
+
+systemctl status ssh
+ss -tulpn | grep :22
+ssh-keygen
+cat ~/.ssh/id_ed25519.pub
+ssh localhost
+rsync --version
+
+Understand every output before moving on.
+
+🎯 Mentor's Advice
+
+A junior engineer logs into servers using passwords.
+
+A professional DevOps engineer:
+
+Uses SSH keys.
+Uses SSH configs.
+Uses rsync.
+Disables root login.
+Uses least-privilege access.
+Secures SSH before exposing a server publicly.
+
+These habits will save you from many production incidents later.
+
+📌 Next Step
+
+Step 9: Storage & Disk Management
+
+You'll learn:
+
+Partitions
+Filesystems
+Mounting
+lsblk
+df
+du
+mount
+fstab
+LVM
+Disk troubleshooting
+
+This is another highly practical Linux topic frequently asked in DevOps interviews and heavily used in cloud environments.

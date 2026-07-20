@@ -1,0 +1,469 @@
+If Linux is the heart of DevOps, Networking is the bloodstream.
+
+Almost every production issue involves networking:
+
+❌ Website is not loading
+❌ Docker container can't connect to the database
+❌ Kubernetes pods can't communicate
+❌ Jenkins can't reach GitHub
+❌ SSH connection refused
+
+A good DevOps engineer must know how to troubleshoot these issues.
+
+Step 7 – Linux Networking for DevOps
+🎯 Learning Objectives
+
+By the end of this step, you'll be able to:
+
+Understand IP addresses and subnets.
+Check network interfaces.
+Test connectivity.
+Diagnose DNS issues.
+Inspect open ports.
+Check routing.
+Transfer data using curl and wget.
+Troubleshoot common network problems.
+1. Networking Basics
+
+Imagine your home network:
+
+Internet
+    │
+    ▼
+Router (192.168.1.1)
+    │
+ ┌──┴─────────────┐
+ │                │
+Laptop        Mobile
+192.168.1.10 192.168.1.20
+
+Every device has an IP address, which acts like its house number on the network.
+
+Types of IP Addresses
+Private IP: Used inside your local network (e.g., 192.168.x.x, 10.x.x.x, 172.16.x.x).
+Public IP: Used on the internet and assigned by your ISP or cloud provider.
+2. Check Your IP Address
+
+Modern Linux uses the ip command.
+
+ip addr
+
+Short version:
+
+ip a
+
+Look for output like:
+
+inet 192.168.1.10/24
+
+This is your machine's IP address.
+
+3. Check Network Interfaces
+ip link
+
+Typical interfaces:
+
+Interface	Purpose
+lo	Loopback (127.0.0.1)
+eth0	Ethernet
+ens33	VMware
+enp0s3	VirtualBox
+wlan0	Wi-Fi
+4. View Routing Table
+ip route
+
+Example:
+
+default via 192.168.1.1 dev enp0s3
+192.168.1.0/24 dev enp0s3
+
+The default gateway is where traffic goes if Linux doesn't know a more specific route.
+
+5. Test Connectivity with ping
+
+Ping your router:
+
+ping 192.168.1.1
+
+Ping Google DNS:
+
+ping 8.8.8.8
+
+Ping a website:
+
+ping google.com
+How to Interpret Results
+ping 8.8.8.8 works, but ping google.com fails → Likely a DNS issue.
+Both fail → Likely a network connectivity issue.
+
+Stop ping with Ctrl + C.
+
+6. Check DNS Resolution
+
+DNS converts domain names into IP addresses.
+
+Use:
+
+nslookup google.com
+
+or
+
+dig google.com
+
+If dig isn't installed:
+
+sudo apt install dnsutils
+7. Test HTTP Requests with curl
+
+Check if a website responds:
+
+curl https://google.com
+
+Only fetch headers:
+
+curl -I https://google.com
+
+This is very useful for testing APIs and web servers.
+
+8. Download Files with wget
+wget https://example.com/file.zip
+
+wget is often used in automation scripts.
+
+9. Check Open Ports
+
+Modern command:
+
+ss -tuln
+
+Options:
+
+t → TCP
+u → UDP
+l → Listening sockets
+n → Numeric addresses
+
+Example:
+
+tcp LISTEN 0 511 0.0.0.0:22
+
+This means SSH is listening on port 22.
+
+10. Find Which Process Uses a Port
+
+Example for port 80:
+
+sudo ss -tulpn | grep :80
+
+This helps identify which service is using a specific port.
+
+11. Check Listening Services
+sudo ss -tulpn
+
+Pay attention to:
+
+Port
+Process name
+PID
+12. Test Specific Ports
+
+If nc (Netcat) is installed:
+
+nc -zv google.com 443
+
+This checks whether port 443 is reachable.
+
+13. View Hostname
+hostname
+
+View detailed host information:
+
+hostnamectl
+
+Change hostname (requires reboot or restart of relevant services to fully propagate):
+
+sudo hostnamectl set-hostname devops-server
+14. View DNS Configuration
+cat /etc/resolv.conf
+
+Typical output:
+
+nameserver 8.8.8.8
+15. Useful Networking Commands
+Command	Purpose
+ip a	Show IP addresses
+ip route	Show routing table
+ping	Test connectivity
+curl	Test HTTP/HTTPS
+wget	Download files
+ss -tulpn	Show listening ports
+hostnamectl	Show hostname info
+nslookup	DNS lookup
+dig	Advanced DNS lookup
+nc	Test TCP/UDP connectivity
+🧪 Practical Lab (60 Minutes)
+Task 1
+
+Display your IP address:
+
+ip a
+Task 2
+
+Display the routing table:
+
+ip route
+Task 3
+
+Ping your gateway:
+
+ping <gateway-ip>
+
+Find the gateway first using ip route.
+
+Task 4
+
+Ping Google's DNS:
+
+ping 8.8.8.8
+Task 5
+
+Check DNS resolution:
+
+nslookup google.com
+Task 6
+
+Fetch HTTP headers:
+
+curl -I https://google.com
+Task 7
+
+List listening ports:
+
+ss -tulpn
+Task 8
+
+If Nginx is installed:
+
+sudo ss -tulpn | grep :80
+
+Verify that Nginx is listening on port 80.
+
+💼 Real DevOps Scenario
+Problem
+
+Users say:
+
+"The website isn't opening."
+
+A structured troubleshooting approach:
+
+Step 1: Is the service running?
+systemctl status nginx
+Step 2: Is it listening on port 80?
+ss -tulpn | grep :80
+Step 3: Test locally
+curl http://localhost
+Step 4: Check the server's IP
+ip a
+Step 5: Verify DNS
+nslookup example.com
+Step 6: Review logs
+journalctl -u nginx
+
+This methodical approach is much more effective than guessing or restarting services immediately.
+
+🚨 Biggest Mistakes Engineers Make
+❌ Mistake 1: Assuming "the network is down"
+
+Always determine where the failure is:
+
+Service
+Port
+DNS
+Routing
+Firewall
+Connectivity
+❌ Mistake 2: Using ping as the only test
+
+A server may block ICMP (used by ping) but still serve HTTP, HTTPS, or SSH normally.
+
+Use tools like:
+
+curl
+ss
+nc
+❌ Mistake 3: Ignoring DNS
+
+If:
+
+ping 8.8.8.8
+
+works but:
+
+ping google.com
+
+fails, the network is probably fine—the issue is likely DNS.
+
+🌍 Free Learning Resources
+Linux Journey – Networking section.
+The Linux Foundation – Introduction to Linux (Networking chapter).
+freeCodeCamp Linux Full Course (Networking lessons).
+
+Practice every command yourself.
+
+🎤 Interview Questions
+What is the difference between a private IP and a public IP?
+Private IP	                                                Public IP
+Used within a local network (LAN).                      	Used on the internet.
+Not directly reachable from the internet.	                Globally unique and reachable on the internet.
+Assigned by a router or local network.	                    Assigned by an ISP or cloud provider.
+Private IP ranges (IPv4):
+10.0.0.0/8
+172.16.0.0 – 172.31.255.255
+192.168.0.0/16
+Example:
+Private IP: 192.168.1.10
+Public IP: 203.0.113.25
+
+
+
+What does ip a display?
+ip a (or ip addr) displays:
+
+Network interfaces
+IPv4 and IPv6 addresses
+Interface state (UP/DOWN)
+MAC addresses
+MTU information
+
+What is the purpose of the routing table?
+The routing table tells the operating system where to send network packets. It determines the next hop (gateway) or interface for traffic destined to different networks.
+View it with:
+ip route
+Example output:
+default via 192.168.1.1 dev eth0
+192.168.1.0/24 dev eth0 proto kernel
+
+What is DNS?
+DNS (Domain Name System) translates domain names into IP addresses.
+Example:
+google.com → 142.250.x.x
+Without DNS, users would have to remember IP addresses instead of domain names.
+
+What is the difference between ping and curl?
+Ping	                                      curl
+Tests network connectivity using ICMP.	      Sends requests to HTTP, HTTPS, FTP, and other protocols.
+Checks if a host is reachable.	              Retrieves data from a server or API.
+Does not test web application responses.	  Can test websites, APIs, headers, authentication, and more.
+Examples:
+ping google.com
+curl https://example.com
+
+What does ss -tulpn show?
+ss -tulpn
+Displays:
+TCP (-t) and UDP (-u) sockets
+Listening ports (-l)
+Numeric addresses (-n)
+Processes using the sockets (-p)
+It's commonly used to verify which services are listening on which ports.
+
+How do you identify the process listening on a specific port?
+Using ss:
+sudo ss -tulpn | grep :80
+Example output:
+tcp LISTEN ... users:(("nginx",pid=1234))
+This shows that nginx is listening on port 80.
+
+What does curl -I do?
+curl -I sends an HTTP HEAD request and returns only the response headers, not the response body.
+Example:
+curl -I https://example.com
+Typical output:
+HTTP/2 200
+content-type: text/html
+server: nginx
+This is useful for checking:
+HTTP status codes
+Response headers
+Server information
+Redirects
+
+What is the purpose of /etc/resolv.conf?
+/etc/resolv.conf contains the DNS resolver configuration, including the DNS servers the system should use.
+Example:
+nameserver 8.8.8.8
+nameserver 1.1.1.1
+View it with:
+cat /etc/resolv.conf
+
+If ping 8.8.8.8 succeeds but ping google.com fails, what is the likely issue?
+The most likely issue is DNS resolution.
+Reason:
+ping 8.8.8.8 uses an IP address directly, so it does not require DNS.
+ping google.com requires the system to resolve the domain name to an IP address.
+Things to check:
+/etc/resolv.conf
+DNS server availability
+systemd-resolved (if used)
+
+Quick Interview Revision
+Private IP: Used inside local networks; not internet-routable.
+Public IP: Globally routable internet address.
+ip a: Shows network interfaces, IP addresses, and interface status.
+Routing table: Determines how packets reach their destination.
+DNS: Converts domain names into IP addresses.
+ping: Tests basic network reachability using ICMP.
+curl: Sends HTTP/HTTPS (and other protocol) requests to servers.
+ss -tulpn: Displays listening TCP/UDP ports and the associated processes.
+Identify a process on a port: sudo ss -tulpn | grep :<port>.
+curl -I: Retrieves only HTTP response headers.
+/etc/resolv.conf: Stores DNS resolver configuration.
+ping 8.8.8.8 works but ping google.com fails: Indicates a DNS resolution problem.
+
+
+
+📝 Today's Assignment
+
+Run these commands and understand their output:
+
+ip a
+ip route
+hostnamectl
+ping 8.8.8.8
+nslookup google.com
+curl -I https://google.com
+ss -tulpn
+cat /etc/resolv.conf
+
+Then answer the 10 interview questions in your own words.
+
+🎯 Mentor's Advice
+
+When troubleshooting network problems, follow this order instead of guessing:
+
+Is the network interface up? (ip link)
+Does the server have an IP address? (ip a)
+Is the route correct? (ip route)
+Can it reach another IP? (ping 8.8.8.8)
+Does DNS work? (nslookup or dig)
+Is the service listening? (ss -tulpn)
+Can the application respond? (curl)
+What do the logs say? (journalctl)
+
+This systematic process is exactly how experienced DevOps engineers diagnose networking issues in production.
+
+📌 Next Step
+
+Step 8: SSH (Secure Shell) & Remote Server Management
+
+You'll learn how to:
+
+Connect to remote Linux servers.
+Generate and use SSH keys.
+Configure passwordless authentication.
+Secure SSH access.
+Transfer files with scp and rsync.
+Troubleshoot SSH connection problems.
+
+These skills are essential because almost all DevOps work is performed on remote servers rather than directly on the local machine.
