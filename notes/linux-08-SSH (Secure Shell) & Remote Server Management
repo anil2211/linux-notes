@@ -351,17 +351,149 @@ Linux Journey → Networking & SSH sections.
 The Linux Foundation → Introduction to Linux.
 OpenSSH official documentation.
 freeCodeCamp Linux course.
+
+
 Interview Questions
 What is SSH?
+SSH (Secure Shell) is a secure network protocol used to connect and manage remote Linux/Unix servers over an encrypted connection.
+Uses:
+Remote server login
+Execute commands remotely
+Transfer files securely
+Manage cloud servers (AWS, Azure, etc.)
+Example:
+ssh username@server_ip
+
 What is the default SSH port?
+The default SSH port is:
+Port 22
+SSH server listens on port 22 by default.
+Check:
+ss -tulpn | grep :22
+
 What is the difference between a public key and a private key?
+Public Key                          	  Private Key
+Shared with servers	                      Kept secret on your machine
+Stored on remote server	                  Stored on client machine
+Used to encrypt/verify authentication	  Used to prove your identity
+Can be copied safely	                  Never share it
+Example:
+Private Key:
+~/.ssh/id_rsa
+Public Key:
+~/.ssh/id_rsa.pub
+
 What does ssh-copy-id do?
+ssh-copy-id copies your public key to a remote server's authorized_keys file.
+Example:
+ssh-copy-id user@server_ip
+It adds:
+~/.ssh/id_rsa.pub
+content into:
+~/.ssh/authorized_keys
+After this, you can login without entering a password.
+
 What is authorized_keys?
+authorized_keys is a file on the SSH server that stores the public keys of users allowed to login.
+Location:
+~/.ssh/authorized_keys
+Example:
+Server
+ |
+ └── ~/.ssh/authorized_keys
+          |
+          └── Client public key
+
+When you connect:
+Server checks your public key
+Matches it with authorized_keys
+Allows login if valid
+
 What is the purpose of ~/.ssh/config?
+~/.ssh/config stores custom SSH connection settings.
+It helps avoid typing long SSH commands.
+Example:
+File:
+nano ~/.ssh/config
+Configuration:
+Host myserver
+    HostName 192.168.1.10
+    User devops
+    Port 22
+    IdentityFile ~/.ssh/id_rsa
+Now instead of:
+ssh devops@192.168.1.10
+You can use:
+ssh myserver
+
 What is the difference between scp and rsync?
+scp	                                              rsync
+Secure copy	                                      Remote synchronization tool
+Copies complete files every time	              Copies only changed data
+Simple file transfer	                          Faster for large data
+No sync capability	                              Maintains directory synchronization
+Example:
+scp:
+scp file.txt user@server:/tmp/
+rsync:
+rsync -avz folder/ user@server:/backup/
+
 How do you check whether SSH is running?
+Using systemctl:
+systemctl status ssh
+or:
+systemctl status sshd
+Check port:
+ss -tulpn | grep :22
+Check process:
+ps aux | grep sshd
+
 What causes "Permission denied (publickey)" errors?
+Common reasons:
+Public key is not copied to server:
+ssh-copy-id user@server
+Wrong private key:
+ssh -i ~/.ssh/id_rsa user@server
+Wrong permissions:
+Client:
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/id_rsa
+Server:
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys
+SSH configuration disables key authentication.
+Check:
+sudo nano /etc/ssh/sshd_config
+Look for:
+PubkeyAuthentication yes
+
 Why is key-based authentication preferred over passwords?
+Key-based authentication is preferred because:
+✅ More secure
+✅ Resistant to brute-force attacks
+✅ No password transmission
+✅ Supports automation (DevOps tools, CI/CD pipelines)
+✅ Better for server-to-server communication
+Example DevOps usage:
+Jenkins → Server deployment
+Ansible → Remote server management
+GitHub Actions → Cloud deployment
+
+Quick DevOps Interview Summary
+Question	        Short Answer
+SSH	S               Secure remote login protocol
+Default port	    22
+Public key	        Shared with server
+Private key	        Secret key kept by user
+ssh-copy-id	        Copies public key to server
+authorized_keys	    Stores allowed public keys
+~/.ssh/config	    SSH connection shortcuts
+scp	                Secure file copy
+rsync	            Incremental file sync
+Check SSH	        systemctl status ssh / ss -tulpn
+Publickey           error	Key/config/permission issue
+Key auth benefit	More secure & automation friendly
+
 Assignment
 
 Run:
@@ -406,5 +538,4 @@ mount
 fstab
 LVM
 Disk troubleshooting
-
 This is another highly practical Linux topic frequently asked in DevOps interviews and heavily used in cloud environments.
