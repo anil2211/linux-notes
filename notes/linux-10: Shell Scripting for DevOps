@@ -1,0 +1,493 @@
+You're now entering the Automation Phase.
+
+This is where you start thinking like a DevOps Engineer, not just a Linux administrator.
+
+A Linux Admin does the task once.
+
+A DevOps Engineer automates the task forever.
+
+If I had to choose one Linux skill that gives the highest ROI for a DevOps career, it would be Bash scripting.
+
+Step 10 – Shell Scripting (Bash) for DevOps
+🎯 Learning Objectives
+
+By the end of this step, you'll be able to:
+
+Write Bash scripts.
+Use variables.
+Accept user input.
+Make decisions with if.
+Repeat tasks using loops.
+Create reusable functions.
+Handle exit codes and errors.
+Automate common DevOps tasks.
+1. What is a Shell Script?
+
+A shell script is simply a text file containing Linux commands that are executed one after another.
+
+Instead of typing:
+
+sudo apt update
+sudo apt upgrade -y
+sudo apt autoremove -y
+
+every time, you can save them in one script:
+
+#!/bin/bash
+
+sudo apt update
+sudo apt upgrade -y
+sudo apt autoremove -y
+
+Run it once:
+
+./update.sh
+2. Your First Script
+
+Create a file:
+
+nano hello.sh
+
+Add:
+
+#!/bin/bash
+
+echo "Hello DevOps!"
+echo "Welcome to Bash Scripting."
+
+Save the file.
+
+Make it executable:
+
+chmod +x hello.sh
+
+Run it:
+
+./hello.sh
+What is #!/bin/bash?
+
+This line is called the shebang.
+
+It tells Linux which interpreter should execute the script.
+
+#!/bin/bash
+
+means:
+
+"Run this script using Bash."
+
+3. Variables
+
+Variables store values.
+
+#!/bin/bash
+
+NAME="Anil"
+
+echo "Hello $NAME"
+
+Output:
+
+Hello Anil
+
+Rules:
+
+No spaces around =.
+Access variables with $.
+
+Correct:
+
+NAME="Linux"
+
+Incorrect:
+
+NAME = Linux
+4. Read User Input
+#!/bin/bash
+
+echo "Enter your name:"
+
+read NAME
+
+echo "Welcome $NAME"
+
+Run:
+
+Enter your name:
+Anil
+
+Welcome Anil
+5. Command-Line Arguments
+
+Create:
+
+#!/bin/bash
+
+echo "First argument: $1"
+echo "Second argument: $2"
+
+Run:
+
+./script.sh Docker Kubernetes
+
+Output:
+
+First argument: Docker
+Second argument: Kubernetes
+
+Useful special variables:
+
+Variable	Meaning
+$0	Script name
+$1	First argument
+$2	Second argument
+$#	Number of arguments
+$@	All arguments
+6. If Statement
+
+Example:
+
+#!/bin/bash
+
+read -p "Enter your age: " AGE
+
+if [ "$AGE" -ge 18 ]
+then
+    echo "Adult"
+else
+    echo "Minor"
+fi
+
+Comparison operators:
+
+Operator	Meaning
+-eq	Equal
+-ne	Not equal
+-gt	Greater than
+-lt	Less than
+-ge	Greater than or equal
+-le	Less than or equal
+7. Case Statement
+
+Useful for menus:
+
+#!/bin/bash
+
+read -p "Choose (start|stop): " ACTION
+
+case "$ACTION" in
+    start)
+        echo "Starting service..."
+        ;;
+    stop)
+        echo "Stopping service..."
+        ;;
+    *)
+        echo "Invalid option"
+        ;;
+esac
+8. For Loop
+
+Example:
+
+#!/bin/bash
+
+for i in 1 2 3 4 5
+do
+    echo "Iteration $i"
+done
+
+Or:
+
+for i in {1..5}
+do
+    echo "$i"
+done
+9. While Loop
+#!/bin/bash
+
+COUNT=1
+
+while [ "$COUNT" -le 5 ]
+do
+    echo "$COUNT"
+    COUNT=$((COUNT+1))
+done
+10. Functions
+
+Functions help avoid repeating code.
+
+#!/bin/bash
+
+greet() {
+    echo "Hello DevOps!"
+}
+
+greet
+greet
+11. Exit Status
+
+Every Linux command returns an exit code.
+
+Check it:
+
+ls
+
+echo $?
+
+Output:
+
+0
+
+0 means success.
+
+Any non-zero value indicates an error.
+
+12. Error Handling
+
+Example:
+
+#!/bin/bash
+
+mkdir demo
+
+if [ $? -eq 0 ]
+then
+    echo "Directory created."
+else
+    echo "Creation failed."
+fi
+
+A more common pattern is:
+
+mkdir demo
+
+if [ $? -ne 0 ]; then
+    echo "Failed to create directory"
+    exit 1
+fi
+
+echo "Directory created successfully"
+13. Check if a File Exists
+#!/bin/bash
+
+FILE="notes.txt"
+
+if [ -f "$FILE" ]
+then
+    echo "File exists"
+else
+    echo "File not found"
+fi
+
+Useful test operators:
+
+Test	Meaning
+-f	Regular file exists
+-d	Directory exists
+-r	Readable
+-w	Writable
+-x	Executable
+14. DevOps Script Example
+
+Check whether Nginx is running:
+
+#!/bin/bash
+
+if systemctl is-active --quiet nginx
+then
+    echo "Nginx is running."
+else
+    echo "Nginx is stopped."
+fi
+
+This kind of script is practical and commonly used.
+
+15. Backup Script
+#!/bin/bash
+
+SOURCE=~/projects
+DEST=~/backup
+
+mkdir -p "$DEST"
+
+cp -r "$SOURCE" "$DEST"
+
+echo "Backup completed."
+🧪 Practical Lab (60–90 Minutes)
+Task 1: Hello Script
+
+Create hello.sh:
+
+#!/bin/bash
+
+echo "Hello DevOps!"
+Task 2: Variable Script
+
+Prompt for your name and greet the user.
+
+Task 3: Calculator
+
+Read two numbers and display their sum.
+
+Hint: Use arithmetic expansion:
+
+SUM=$((NUM1 + NUM2))
+Task 4: Even or Odd
+
+Ask for a number.
+
+Print:
+
+Even
+
+or
+
+Odd
+Task 5: Loop
+
+Print numbers from 1 to 20.
+
+Task 6: File Checker
+
+Ask for a filename.
+
+Print whether it exists.
+
+Task 7: Service Checker
+
+Write a script that checks if the SSH service is active.
+
+If active:
+
+SSH is running.
+
+Otherwise:
+
+SSH is not running.
+Task 8 (Mini Project)
+
+Create a script called system_report.sh that prints:
+
+========================
+System Report
+========================
+
+Hostname:
+Kernel Version:
+Current User:
+IP Address:
+Memory Usage:
+Disk Usage:
+System Uptime:
+Current Date:
+
+Hints:
+
+Hostname → hostname
+Kernel → uname -r
+User → whoami
+IP → hostname -I
+Memory → free -h
+Disk → df -h /
+Uptime → uptime -p
+Date → date
+💼 Real DevOps Scenario
+
+Suppose you need to verify every morning that essential services are running.
+
+You could automate it with a script:
+
+#!/bin/bash
+
+SERVICES=("ssh" "nginx")
+
+for SERVICE in "${SERVICES[@]}"
+do
+    if systemctl is-active --quiet "$SERVICE"
+    then
+        echo "$SERVICE : Running"
+    else
+        echo "$SERVICE : Stopped"
+    fi
+done
+
+Instead of manually checking each service, one script performs the task consistently.
+
+🚨 Biggest Mistakes Engineers Make
+❌ Not quoting variables
+
+Bad:
+
+echo $NAME
+
+Preferred:
+
+echo "$NAME"
+
+Quoting helps avoid issues with spaces and special characters.
+
+❌ Ignoring exit codes
+
+Always consider whether important commands succeeded before continuing.
+
+❌ Hardcoding values
+
+Instead of:
+
+USER=anil
+
+accept input or pass arguments where appropriate to make scripts reusable.
+
+🌍 Free Learning Resources
+Bash Guide for Beginners (The Linux Documentation Project)
+Linux Journey – Shell Scripting
+freeCodeCamp – Bash Scripting Course (YouTube)
+🎤 Interview Questions
+What is a shell script?
+What is the purpose of the shebang (#!/bin/bash)?
+How do you declare and use a variable?
+What is the difference between $1 and $@?
+What does $? represent?
+How do you read user input in Bash?
+What is the difference between a for loop and a while loop?
+How do you check whether a file exists?
+How do you define a function in Bash?
+Why is automation important in DevOps?
+📝 Today's Assignment
+
+Create the following scripts:
+
+hello.sh
+calculator.sh
+file_checker.sh
+service_checker.sh
+system_report.sh
+
+Run each script and explain why each command inside it is used.
+
+🎯 Mentor's Advice
+
+At this stage, don't just memorize Bash syntax. Focus on solving problems.
+
+Whenever you perform a task manually, ask yourself:
+
+"Can I automate this with a Bash script?"
+
+If the answer is yes, write a script.
+
+That mindset is what separates a Linux user from a DevOps engineer.
+
+📌 What's Next?
+
+Step 11 – Cron Jobs & Task Scheduling
+
+You'll learn how to:
+
+Schedule scripts automatically.
+Use cron and crontab.
+Understand cron expressions.
+Schedule backups, health checks, and log cleanup.
+Build automated daily and weekly maintenance tasks.
+
+This is the next step toward fully automating Linux administration.

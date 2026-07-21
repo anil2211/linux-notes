@@ -1,7 +1,12 @@
 #!/bin/bash
 
-while true
-do
-    echo "Hello DevOps $(date)" >> /tmp/hello.log
-    sleep 10
-done
+echo "Hello DevOps!"
+echo "Welcome to Bash Scripting."
+NAME="Anil"
+
+echo "Hello $NAME"
+
+echo "Enter your name:"
+read NAME
+
+echo "Welcome $NAME"

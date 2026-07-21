@@ -1,0 +1,691 @@
+Excellent. Step 14 is one of the most important steps in the entire Linux roadmap.
+
+This is the step that separates someone who knows Linux commands from someone who can solve production incidents.
+
+In companies like Amazon, Google, Microsoft, Adobe, Oracle, Walmart, Atlassian, and Flipkart, 70–80% of a DevOps/SRE engineer's daily work is troubleshooting production issues, not writing commands.
+
+Step 14 – Production Troubleshooting (Think Like an SRE)
+
+Goal: Learn a structured, evidence-based approach to diagnosing and resolving production incidents using Linux tools, logs, networking, and performance analysis.
+
+🌍 Reality in DevOps
+
+It's 3:15 AM.
+
+PagerDuty wakes you up.
+
+🚨 Critical Alert
+
+Production Website is DOWN.
+
+Thousands of users cannot access the application.
+
+The CEO asks:
+
+"How long until it's fixed?"
+
+The developers say:
+
+"The code wasn't changed."
+
+The database team says:
+
+"Database looks fine."
+
+The network team says:
+
+"Network is healthy."
+
+Now everyone looks at you.
+
+A good DevOps Engineer doesn't panic.
+
+They follow a structured troubleshooting process.
+
+🎯 Learning Objectives
+
+By the end of this step, you'll be able to:
+
+Think like an SRE during incidents
+Follow a systematic troubleshooting methodology
+Collect evidence before taking action
+Troubleshoot Linux servers
+Troubleshoot applications
+Troubleshoot networking
+Troubleshoot storage
+Troubleshoot services
+Perform Root Cause Analysis (RCA)
+Write an incident timeline
+Avoid common troubleshooting mistakes
+1. Never Guess
+
+The first rule of production troubleshooting:
+
+Never guess. Always collect evidence.
+
+Bad Engineer:
+
+Server is slow.
+
+Let's reboot.
+
+Good Engineer:
+
+Why is it slow?
+
+CPU?
+Memory?
+Disk?
+Network?
+Logs?
+Application?
+Database?
+2. Production Troubleshooting Flow
+
+Always follow the same workflow.
+
+Alert
+      │
+      ▼
+Collect Information
+      │
+      ▼
+Reproduce Problem
+      │
+      ▼
+Check Infrastructure
+      │
+      ▼
+Check Services
+      │
+      ▼
+Check Logs
+      │
+      ▼
+Find Root Cause
+      │
+      ▼
+Fix
+      │
+      ▼
+Verify
+      │
+      ▼
+Root Cause Analysis
+
+Never skip steps.
+
+3. Start with the Basics
+
+Always answer:
+
+What is broken?
+When did it start?
+Who is affected?
+Is everything down?
+One server?
+Multiple servers?
+Only one service?
+
+Example:
+
+Website
+
+❌ Login fails
+
+API works
+
+Database works
+
+Static pages work
+
+This immediately narrows the investigation.
+
+4. Check System Health
+
+First command:
+
+uptime
+
+Example:
+
+load average:
+18.0
+
+If server has:
+
+4 CPU cores
+
+Load:
+
+18
+
+Huge problem.
+
+CPU:
+
+top
+
+Memory:
+
+free -h
+
+Disk:
+
+df -h
+
+Disk I/O:
+
+iostat -x
+
+Network:
+
+ss -tulpn
+
+This gives a quick overview of system health.
+
+5. Check Running Services
+
+Example:
+
+Website is down.
+
+Check:
+
+systemctl status nginx
+
+If failed:
+
+inactive (dead)
+
+Start:
+
+sudo systemctl start nginx
+
+Check again.
+
+Never assume the service is running.
+
+6. Read Logs
+
+Logs tell the story.
+
+System logs:
+
+journalctl
+
+Follow logs live:
+
+journalctl -f
+
+Service logs:
+
+journalctl -u nginx
+
+Application logs:
+
+/var/log/
+
+Examples:
+
+nginx
+
+apache2
+
+mysql
+
+postgresql
+
+docker
+
+application.log
+
+Always read logs before restarting services.
+
+7. Check Disk Space
+
+One of the most common production issues.
+
+df -h
+
+Suppose:
+
+Filesystem
+
+100%
+
+Applications may fail because they cannot write temporary files or logs.
+
+Find large directories:
+
+du -sh /*
+8. Check Memory
+free -h
+
+If swap is heavily used:
+
+RAM exhausted
+
+Find large memory consumers:
+
+ps aux --sort=-%mem
+9. Check CPU
+top
+
+Sort:
+
+P
+
+inside top, or:
+
+ps aux --sort=-%cpu
+
+Find:
+
+Java process
+Python script
+Backup job
+
+Consuming 300% CPU.
+
+Now investigate why, not just how to stop it.
+
+10. Check Network
+
+Can server reach another server?
+
+ping
+
+DNS:
+
+dig google.com
+
+Routing:
+
+ip route
+
+Listening ports:
+
+ss -tulpn
+
+Firewall:
+
+sudo ufw status
+11. Check Application
+
+Sometimes Linux is healthy.
+
+Application is broken.
+
+Example:
+
+HTTP 500
+
+Check:
+
+Application logs
+
+Maybe:
+
+Database connection failed
+
+Linux isn't the problem.
+
+12. Database Troubleshooting
+
+Check service:
+
+systemctl status mysql
+
+Connections:
+
+ss -tulpn
+
+Logs:
+
+/var/log/mysql/
+
+Disk full?
+
+Memory exhausted?
+
+Connection limit reached?
+
+13. Docker Troubleshooting
+
+Containers:
+
+docker ps
+
+Logs:
+
+docker logs container_name
+
+Resources:
+
+docker stats
+
+Restart:
+
+docker restart container
+14. Kubernetes Troubleshooting (Preview)
+
+Pods:
+
+kubectl get pods
+
+Describe:
+
+kubectl describe pod
+
+Logs:
+
+kubectl logs pod-name
+
+Events:
+
+kubectl get events
+
+You'll master this later in the Kubernetes roadmap.
+
+15. Root Cause Analysis (RCA)
+
+Never finish an incident by saying:
+
+Restarted server.
+
+Instead answer:
+
+Why did it happen?
+
+Example RCA:
+
+Problem
+
+Website unavailable
+
+Reason
+
+Disk became full
+
+Cause
+
+Application generated excessive logs
+
+Solution
+
+Deleted logs
+
+Prevention
+
+Configure log rotation
+
+Always identify:
+
+Immediate cause
+Root cause
+Preventive action
+16. Incident Timeline
+
+Example:
+
+02:15
+
+Alert received
+
+02:17
+
+Checked CPU
+
+02:20
+
+Disk found full
+
+02:22
+
+Deleted old logs
+
+02:25
+
+Service restored
+
+02:30
+
+Monitoring confirmed healthy
+
+Timelines help with post-incident reviews.
+
+17. Troubleshooting Mindset
+
+Always think:
+
+What changed?
+
+Deployment?
+
+Configuration?
+
+Network?
+
+Certificate?
+
+Database?
+
+Disk?
+
+DNS?
+
+Most incidents happen because something changed.
+
+Practical Lab (90–120 Minutes)
+Scenario 1 – Nginx Service Down
+Stop Nginx:
+sudo systemctl stop nginx
+Verify:
+systemctl status nginx
+Start it.
+Confirm it is serving traffic.
+Scenario 2 – Disk Full
+
+Create a large test file:
+
+fallocate -l 1G test.img
+
+Check:
+
+df -h
+
+Delete it and verify recovered space.
+
+Scenario 3 – High CPU
+
+Start a CPU-intensive process:
+
+yes > /dev/null
+
+Monitor:
+
+top
+
+Stop the process:
+
+kill PID
+Scenario 4 – Memory Usage
+
+Run a memory-intensive application in a lab environment.
+
+Observe:
+
+free -h
+
+Monitor:
+
+vmstat
+Scenario 5 – SSH Issue
+
+Stop SSH:
+
+sudo systemctl stop ssh
+
+Observe connection failure from another terminal.
+
+Restart:
+
+sudo systemctl start ssh
+Scenario 6 – Log Investigation
+
+View SSH logs:
+
+journalctl -u ssh
+
+Search for failed login attempts.
+
+Real DevOps Scenario
+Incident
+
+Users report:
+
+Website returns HTTP 502 Bad Gateway.
+Investigation
+Check Nginx:
+systemctl status nginx
+
+Running.
+
+Check backend application:
+systemctl status myapp
+
+Stopped.
+
+Read logs:
+journalctl -u myapp
+
+Error:
+
+Database connection timeout
+Check database:
+systemctl status mysql
+
+Database stopped.
+
+Start MySQL.
+Verify application.
+Verify website.
+
+Root cause:
+
+Database service crashed after disk became full due to excessive logs.
+
+Preventive action:
+
+Enable log rotation
+Monitor disk usage
+Add alerting for disk utilization
+Biggest Mistakes Engineers Make
+❌ Mistake 1
+
+Restarting services immediately.
+
+Always inspect logs first.
+
+❌ Mistake 2
+
+Ignoring monitoring alerts.
+
+Alerts provide valuable clues about timing and affected components.
+
+❌ Mistake 3
+
+Not documenting what happened.
+
+Without notes, RCA becomes difficult.
+
+❌ Mistake 4
+
+Fixing symptoms instead of identifying the root cause.
+
+A restart may restore service temporarily but won't prevent recurrence.
+
+Free Resources
+Brendan Gregg
+
+Performance analysis and troubleshooting resources.
+
+Google SRE Book
+
+Read the chapters on:
+
+Incident Response
+Monitoring
+Toil
+Postmortems
+The Linux Foundation
+
+System administration and troubleshooting chapters.
+
+YouTube
+
+Search for:
+
+Linux troubleshooting labs
+Production incident simulations
+SRE interview scenarios
+Interview Questions
+What is your first step when a production alert arrives?
+How do you troubleshoot a slow Linux server?
+What commands do you use to investigate CPU, memory, disk, and network issues?
+How do you troubleshoot a service that won't start?
+What is Root Cause Analysis (RCA)?
+Why are logs critical during troubleshooting?
+How would you diagnose a "502 Bad Gateway" error?
+What information should an incident timeline include?
+Why is rebooting a server not always the best first action?
+What is the difference between treating a symptom and identifying the root cause?
+Assignment
+
+Simulate and resolve these incidents in your lab:
+
+Stop a service and recover it.
+Fill part of the disk, identify the issue, and clean it up.
+Create a CPU-intensive process, identify it, and stop it.
+Review SSH logs for authentication events.
+Write an RCA for each simulated incident using this template:
+Incident: What happened?
+Impact: Who or what was affected?
+Root Cause: Why did it happen?
+Resolution: How was it fixed?
+Prevention: What changes will stop it from happening again?
+🎯 Mentor's Advice
+
+The best SREs don't memorize hundreds of commands—they follow a disciplined process.
+
+Whenever an incident occurs, remember this checklist:
+
+Understand the problem.
+Collect evidence.
+Check system health (CPU, memory, disk, network).
+Verify services.
+Read logs.
+Identify the root cause.
+Apply the fix.
+Confirm the service is healthy.
+Document the incident.
+Implement preventive measures.
+
+Following this workflow will make you more effective during production incidents and is exactly the mindset interviewers look for in DevOps and SRE roles.
+
+📌 What's Next?
+Step 15 – Real DevOps Linux Projects (Job-Ready Experience)
+
+You'll build production-style projects such as:
+
+Linux Server Hardening Project
+Automated Backup & Restore System
+System Monitoring and Health Dashboard
+Log Monitoring & Alerting
+User Lifecycle Automation
+Nginx Reverse Proxy Setup
+Multi-Service Deployment with Systemd
+End-to-End Linux Administration Project
+
+These projects combine everything you've learned in Steps 0–14 and provide hands-on experience similar to what you'll encounter in a real DevOps role.

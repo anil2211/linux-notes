@@ -301,17 +301,214 @@ before using commands like mkfs.
 Linux Journey – Filesystems & Storage.
 The Linux Foundation – Introduction to Linux (Storage chapter).
 Ubuntu Server Guide – Filesystems and storage.
+
+
 🎤 Interview Questions
 What is the difference between a disk, a partition, and a filesystem?
+Disk
+A disk is a physical or virtual storage device.
+Examples:
+HDD
+SSD
+NVMe
+
+Linux names:
+/dev/sda
+/dev/sdb
+/dev/nvme0n1
+
+Partition
+A partition is a logical division of a disk.
+Example:
+Disk
+│
+├── Partition 1
+├── Partition 2
+└── Partition 3
+
+Linux:
+/dev/sda1
+/dev/sda2
+/dev/sda3
+
+Filesystem
+A filesystem organizes how files and directories are stored.
+Examples:
+ext4
+xfs
+btrfs
+FAT32
+NTFS
+Example:
+mkfs.ext4 /dev/sda1
+A disk is the physical storage device, a partition is a logical section of that disk, and a filesystem is the structure used to store and organize files on a partition.
+
+
+
 What does lsblk show?
+lsblk lists block devices.
+Example:
+lsblk
+
+Output:
+NAME   SIZE TYPE MOUNTPOINT
+sda    100G disk
+├─sda1  50G part /
+└─sda2  50G part /home
+
+Shows:
+disks
+partitions
+mount points
+sizes
+Useful for checking storage layout.
+
+
 What is the difference between df and du?
+df	                                 du
+Filesystem usage            	Directory/File usage
+Shows free space	            Shows actual directory size
+Reads filesystem metadata	    Reads files recursively
+Example:
+
+Filesystem:
+df -h
+Directory:
+du -sh /var/log
+Interview answer:
+df reports disk usage of mounted filesystems, while du calculates disk usage of files and directories.
+
+
 Why is df -h commonly used?
+Because: df -h  uses -h which means Human Readable Instead of 1073741824 it shows 1G Much easier to understand.
+
 What is an inode?
+An inode is a data structure that stores metadata about a file.
+It contains:
+owner
+permissions
+timestamps
+file size
+disk block locations
+It does not store the filename.
+Check inode usage:df -i
+Check inode number:ls -i
+
+Interview answer:
+An inode stores metadata about a file except its name and file content.
+
 What is the purpose of /etc/fstab?
+/etc/fstab
+contains filesystems that should be mounted automatically during boot.
+Example:UUID=1234-5678 / ext4 defaults 0 1
+Check file:
+cat /etc/fstab
+Test:
+sudo mount -a
+
 What is the difference between mount and umount?
+mount Attaches a filesystem.
+Example:sudo mount /dev/sdb1 /mnt/data
+umount Detaches a filesystem.
+Example: sudo umount /mnt/data
+Difference:mount	umount
+Attach filesystem	Detach filesystem
+
 Why are UUIDs preferred over device names in /etc/fstab?
+Device names may change.
+Example:
+Today-/dev/sdb ,Tomorrow -/dev/sdc
+UUIDs uniquely identify a filesystem and remain stable even if device names change.
+
 What is LVM, and why is it useful?
+LVM =Logical Volume Manager
+It provides flexible storage management.
+Without LVM
+Disk
+│
+└── Partition
+With LVM
+Disk
+│
+└── Physical Volume
+        │
+        └── Volume Group
+                │
+                ├── Logical Volume
+                ├── Logical Volume
+                └── Logical Volume
+Advantages:
+Resize partitions online
+Add disks easily
+Snapshots
+Flexible storage
+Better management
+Commands:
+pvcreate
+vgcreate
+lvcreate
+lvextend
+resize2fs
+Interview answer:LVM provides flexible disk management by allowing logical volumes to be resized, extended, and managed independently of physical disks.
+
 How would you troubleshoot a "No space left on device" error?
+Step 1 Check disk usage
+df -h
+Step 2 Check inode usage
+df -i
+Sometimes disk space is available but inodes are exhausted.
+Step 3 Find large directories
+du -sh /*
+Step 4 Find large files
+find / -type f -size +500M
+Step 5 Clean logs
+sudo journalctl --vacuum-time=7d
+or
+sudo truncate -s 0 /var/log/syslog
+(Only if appropriate for your environment.)
+Step 6 Remove unused packages
+Ubuntu:
+sudo apt autoremove
+sudo apt clean
+Step 7 Check deleted files still held open
+sudo lsof | grep deleted
+Restart the process if needed.
+Step 8 Extend storage (if using LVM or cloud volumes)
+Increase the filesystem size after extending the underlying volume.
+
+
+Quick Interview Revision
+Question	Short Answer
+Disk	Physical storage device
+Partition	Logical section of a disk
+Filesystem	Structure that stores files
+lsblk	Lists disks, partitions, mount points
+df	Filesystem disk usage
+du	Directory/file disk usage
+df -h	Human-readable disk usage
+Inode	Metadata structure for a file
+/etc/fstab	Auto-mount configuration at boot
+mount	Attach a filesystem
+umount	Detach a filesystem
+UUID	Stable filesystem identifier
+LVM	Flexible logical volume management
+"No space left on device"	Check df -h, df -i, du, large files, logs, and open deleted files
+
+Interview Questions Based on These Commands
+Q1. What does lsblk do?
+Answer: Lists all block devices such as disks, partitions, and mount points.
+Q2. Difference between df and du?
+df → Shows filesystem disk usage.
+du → Shows disk usage of files/directories.
+Q3. What does df -i show?
+Answer: Displays inode usage and availability.
+Q4. What is blkid used for?
+Answer: Displays filesystem UUIDs, labels, and filesystem types.
+Q5. What is findmnt?
+Answer: Displays the filesystem mount hierarchy and mount points.
+Q6. Why are Windows drives shown as 9p?
+Answer: WSL uses the 9P (Plan 9) protocol to expose Windows filesystems inside Linux.
+
 📝 Today's Assignment
 
 Run and understand the output of:
